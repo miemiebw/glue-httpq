@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.github.glue.httpq.model.Message;
 import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 
@@ -49,7 +50,7 @@ public class HttpHandler extends NettyHandler {
 				log.debug("name: {}",names);
 				if(clientIds == null || clientIds.isEmpty()){
 					String clientId = UUID.randomUUID().toString();
-					channel.write(Reply.as().with("{clentId: '"+clientId+"'}").type(Reply.CONTENTTYPE_JSON).toResponse());
+					channel.write(Reply.as().with("{status:'success',op:'getClentId' ,result: '"+clientId+"'}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}else if(names != null && !names.isEmpty()){
 					String clientId = clientIds.get(0);
 					String name = names.get(0);
@@ -72,7 +73,7 @@ public class HttpHandler extends NettyHandler {
 					
 					String json = JSON.toJSONString(pushMessages);
 					log.debug("Push Json: {}", json);
-					channel.write(Reply.as().with(json).type(Reply.CONTENTTYPE_JSON).toResponse());
+					channel.write(Reply.as().with("{status:'success', op:'getMessage' ,result:"+ json +"}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}
 				
 				
@@ -97,7 +98,7 @@ public class HttpHandler extends NettyHandler {
 					message.addHeader(Message.HEADER_ROUTINGKEY, name);
 					message.setBody(body);
 					this.route(name, message);
-					channel.write(Reply.as().with("{message: 'done'}").type(Reply.CONTENTTYPE_JSON).toResponse());
+					channel.write(Reply.as().with("{status:'success', op:'postMessage' ,result: 'push done.'}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}
 			}else if(uri.startsWith("/console")){
 				InputStream input = this.getClass().getResourceAsStream(uri);
@@ -116,9 +117,8 @@ public class HttpHandler extends NettyHandler {
 	 * @see com.github.glue.httpq.transport.NettyHandler#handleException(java.lang.Throwable)
 	 */
 	@Override
-	protected void handleException(Throwable e) {
-		// TODO Auto-generated method stub
-
+	protected void handleException(Throwable e, Channel channel) {
+		channel.write(Reply.as().with("{status:'fail' ,result: '"+Throwables.getStackTraceAsString(e)+"'}").type(Reply.CONTENTTYPE_HTML).toResponse());
 	}
 	
 	

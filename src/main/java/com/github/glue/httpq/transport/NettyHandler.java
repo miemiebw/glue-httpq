@@ -33,7 +33,7 @@ public abstract class NettyHandler extends ExchangeHandler implements ChannelUps
 			handle((HttpRequest)((MessageEvent) event).getMessage(),event.getChannel());
 		}else if(event instanceof ExceptionEvent){
 			log.error("Exception caught ",event);
-			handleException(((ExceptionEvent)event).getCause());
+			handleException(((ExceptionEvent)event).getCause(), event.getChannel());
 			event.getChannel().close();
 		}else if(event instanceof ChannelStateEvent){
 			ChannelStateEvent state = (ChannelStateEvent)event;
@@ -55,5 +55,5 @@ public abstract class NettyHandler extends ExchangeHandler implements ChannelUps
 	}
 
 	protected abstract void handle(HttpRequest request, Channel channel);
-	protected abstract void handleException(Throwable e);
+	protected abstract void handleException(Throwable e, Channel channel);
 }
