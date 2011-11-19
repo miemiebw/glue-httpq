@@ -3,6 +3,7 @@
  */
 package com.github.glue.httpq.transport;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -21,10 +22,11 @@ import com.google.common.collect.Maps;
  *
  */
 public class Reply {
-	
-	String contentType = "text/json;charset=UTF-8";
+	public static final String CONTENTTYPE_JSON = "text/json;charset=UTF-8";
+	public static final String CONTENTTYPE_HTML = "text/html;charset=UTF-8";
+	String contentType = CONTENTTYPE_HTML;
 	Map<String, String> headers;
-	String content;
+	Object content;
 	HttpResponseStatus status = HttpResponseStatus.OK;
 	
 	private Reply(){
@@ -53,7 +55,7 @@ public class Reply {
 		return this;
 	}
 
-	Reply with(String content) {
+	public Reply with(Object content) {
 		this.content = content;
 		return this;
 	}
@@ -68,6 +70,7 @@ public class Reply {
 	}
 	
 	public HttpResponse toResponse(){
+		
 		DefaultHttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
 		response.setHeader("Content-Type", contentType);
 		if(headers != null){
@@ -75,12 +78,20 @@ public class Reply {
 				response.setHeader(entry.getKey(), entry.getValue());
 			}
 		}
-		
-		if(!Strings.isNullOrEmpty(content)){
-			byte[] body = content.getBytes();
+		try{
+		if(content instanceof String && !Strings.isNullOrEmpty((String)content)){
+			byte[] body = ((String)content).getBytes();
 			ChannelBuffer buffer = new DynamicChannelBuffer(body.length);
 			buffer.writeBytes(body);
 			response.setContent(buffer);
+		}else if(content instanceof InputStream){
+			InputStream input = (InputStream)content;
+			ChannelBuffer buffer = new DynamicChannelBuffer(input.available());
+		    buffer.writeBytes(input,input.available());
+		    response.setContent(buffer);
+		}
+		}catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 		
 		return response;

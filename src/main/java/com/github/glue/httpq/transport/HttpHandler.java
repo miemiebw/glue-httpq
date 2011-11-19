@@ -4,6 +4,7 @@
 package com.github.glue.httpq.transport;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -48,7 +49,7 @@ public class HttpHandler extends NettyHandler {
 				log.debug("name: {}",names);
 				if(clientIds == null || clientIds.isEmpty()){
 					String clientId = UUID.randomUUID().toString();
-					channel.write(Reply.as().with("{clentId: '"+clientId+"'}").toResponse());
+					channel.write(Reply.as().with("{clentId: '"+clientId+"'}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}else if(names != null && !names.isEmpty()){
 					String clientId = clientIds.get(0);
 					String name = names.get(0);
@@ -69,7 +70,7 @@ public class HttpHandler extends NettyHandler {
 					
 					String json = JSON.toJSONString(pushMessages);
 					log.debug("Push Json: {}", json);
-					channel.write(Reply.as().with(json).toResponse());
+					channel.write(Reply.as().with(json).type(Reply.CONTENTTYPE_JSON).toResponse());
 				}
 				
 				
@@ -94,8 +95,11 @@ public class HttpHandler extends NettyHandler {
 					message.addHeader(Message.HEADER_ROUTINGKEY, name);
 					message.setBody(body);
 					this.route(name, message);
-					channel.write(Reply.as().with("{message: 'done'}").toResponse());
+					channel.write(Reply.as().with("{message: 'done'}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}
+			}else if(uri.startsWith("/console")){
+				InputStream input = this.getClass().getResourceAsStream(uri);
+				channel.write(Reply.as().with(input).type(Reply.CONTENTTYPE_HTML).toResponse());
 			}
 			
 			
