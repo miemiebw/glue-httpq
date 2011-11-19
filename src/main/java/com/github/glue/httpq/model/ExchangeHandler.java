@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -15,6 +18,7 @@ import com.google.common.collect.Maps;
  *
  */
 public class ExchangeHandler {
+	private Logger log = LoggerFactory.getLogger(getClass());
 	final static String DIRECT = "amq.direct";
 	final static String TOPIC = "amq.topic";
 	
@@ -43,12 +47,17 @@ public class ExchangeHandler {
 		}
 	}
 	
-	public void route(String routingKey, Message message) throws InterruptedException{
+	public void route(String routingKey, Message message) {
 		List<LinkedBlockingQueue<Message>> queueList = exchages.get(routingKey);
 		if(queueList != null){
 			for (LinkedBlockingQueue<Message> queue : queueList) {
-				queue.put(message);
+				try {
+					queue.put(message);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
+		log.debug("routeing key: {}, message: {}", routingKey,message);
 	}
 }
