@@ -17,7 +17,7 @@ import com.google.common.collect.Maps;
  * @author eric
  *
  */
-public class ExchangeHandler {
+public class ExchangeManager {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	final static String DIRECT = "amq.direct";
 	final static String TOPIC = "amq.topic";
@@ -35,7 +35,7 @@ public class ExchangeHandler {
 		return queues.get(name);
 	}
 	
-	public void bindQueue(String bindingKey, String queueName){
+	public synchronized void bindQueue(String bindingKey, String queueName){
 		List<LinkedBlockingQueue<Message>> queueList = exchages.get(bindingKey);
 		if(queueList == null){
 			queueList = Lists.newArrayList();

@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.github.glue.httpq.model.ExchangeManager;
 import com.github.glue.httpq.model.Message;
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
@@ -31,6 +32,16 @@ import com.google.common.collect.Lists;
  *
  */
 public class HttpHandler extends NettyHandler {
+	ExchangeManager exchangeManager;
+	
+	
+	
+	public HttpHandler(ExchangeManager exchangeManager) {
+		super();
+		this.exchangeManager = exchangeManager;
+	}
+
+
 	private Logger log = LoggerFactory.getLogger(getClass());
 	/* (non-Javadoc)
 	 * @see com.github.glue.httpq.transport.NettyHandler#handle(org.jboss.netty.handler.codec.http.HttpRequest)
@@ -55,11 +66,11 @@ public class HttpHandler extends NettyHandler {
 					String clientId = clientIds.get(0);
 					String name = names.get(0);
 					String queueName = clientId + "#" +name;
-					LinkedBlockingQueue<Message> queue = getQueue(queueName);
+					LinkedBlockingQueue<Message> queue = exchangeManager.getQueue(queueName);
 					if(queue == null){
-						createQueue(queueName);
-						queue = getQueue(queueName);
-						bindQueue(name, queueName);
+						exchangeManager.createQueue(queueName);
+						queue = exchangeManager.getQueue(queueName);
+						exchangeManager.bindQueue(name, queueName);
 					}
 					List<Message> pushMessages = Lists.newArrayList();
 					Message message = queue.poll(10, TimeUnit.SECONDS);
@@ -97,7 +108,7 @@ public class HttpHandler extends NettyHandler {
 					Message message = new Message();
 					message.addHeader(Message.HEADER_ROUTINGKEY, name);
 					message.setBody(body);
-					this.route(name, message);
+					exchangeManager.route(name, message);
 					channel.write(Reply.as().with("{status:'success', op:'postMessage' ,result: 'push done.'}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}
 			}else{

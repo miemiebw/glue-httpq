@@ -16,6 +16,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.glue.httpq.model.ExchangeManager;
 import com.github.glue.httpq.transport.HttpHandler;
 
 public class HttpQueueBroker {
@@ -23,7 +24,7 @@ public class HttpQueueBroker {
 	ExecutorService executor;
 	ChannelFactory channelFactory;
 	Channel channel;
-	HttpHandler httpHandler;
+	ExchangeManager exchangeManager;
 	String host;
 	int port;
 	public HttpQueueBroker(String host, int port){
@@ -34,7 +35,7 @@ public class HttpQueueBroker {
 	public void start(){
 		executor = Executors.newCachedThreadPool();
 		channelFactory = new NioServerSocketChannelFactory(executor,executor);
-		httpHandler = new HttpHandler();
+		exchangeManager = new ExchangeManager();
 		
 		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory(){
 
@@ -42,7 +43,7 @@ public class HttpQueueBroker {
 				ChannelPipeline pipeline = Channels.pipeline();
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 		        pipeline.addLast("encoder", new HttpResponseEncoder());
-		        pipeline.addLast("http", httpHandler);
+		        pipeline.addLast("http", new HttpHandler(exchangeManager));
 				return pipeline;
 			}
 		};

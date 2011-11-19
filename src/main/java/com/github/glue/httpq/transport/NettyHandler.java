@@ -18,13 +18,11 @@ import org.jboss.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.glue.httpq.model.ExchangeHandler;
-
 /**
  * @author eric
  *
  */
-public abstract class NettyHandler extends ExchangeHandler implements ChannelUpstreamHandler{
+public abstract class NettyHandler implements ChannelUpstreamHandler{
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
 	public void handleUpstream(ChannelHandlerContext context, ChannelEvent event)
