@@ -12,6 +12,8 @@ import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -22,6 +24,7 @@ import com.google.common.collect.Maps;
  *
  */
 public class Reply {
+	private Logger log = LoggerFactory.getLogger(getClass());
 	public static final String CONTENTTYPE_JSON = "text/json;charset=UTF-8";
 	public static final String CONTENTTYPE_HTML = "text/html;charset=UTF-8";
 	String contentType = CONTENTTYPE_HTML;
@@ -80,6 +83,7 @@ public class Reply {
 		}
 		try{
 		if(content instanceof String && !Strings.isNullOrEmpty((String)content)){
+			log.debug("write text: {}", content);
 			byte[] body = ((String)content).getBytes();
 			ChannelBuffer buffer = new DynamicChannelBuffer(body.length);
 			buffer.writeBytes(body);

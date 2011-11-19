@@ -32,9 +32,9 @@ import com.google.common.collect.Lists;
  *
  */
 public class HttpHandler extends NettyHandler {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
 	ExchangeManager exchangeManager;
-	
-	
 	
 	public HttpHandler(ExchangeManager exchangeManager) {
 		super();
@@ -42,7 +42,6 @@ public class HttpHandler extends NettyHandler {
 	}
 
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 	/* (non-Javadoc)
 	 * @see com.github.glue.httpq.transport.NettyHandler#handle(org.jboss.netty.handler.codec.http.HttpRequest)
 	 */
@@ -57,8 +56,6 @@ public class HttpHandler extends NettyHandler {
 				QueryStringDecoder decoder = new QueryStringDecoder(uri,Charsets.UTF_8);
 				List<String> clientIds = decoder.getParameters().get("clientId");
 				List<String> names = decoder.getParameters().get("name");
-				log.debug("clientId: {}",clientIds);
-				log.debug("name: {}",names);
 				if(clientIds == null || clientIds.isEmpty()){
 					String clientId = UUID.randomUUID().toString();
 					channel.write(Reply.as().with("{status:'success',op:'getClentId' ,result: '"+clientId+"'}").type(Reply.CONTENTTYPE_JSON).toResponse());
@@ -83,8 +80,7 @@ public class HttpHandler extends NettyHandler {
 					}
 					
 					String json = JSON.toJSONString(pushMessages);
-					log.debug("Push Json: {}", json);
-					channel.write(Reply.as().with("{status:'success', op:'getMessage' ,result:"+ json +"}").type(Reply.CONTENTTYPE_JSON).toResponse());
+					channel.write(Reply.as().with("{status:'success', op:'getMessage', clientId:'"+clientId+"' ,result:"+ json +"}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}
 				
 				
