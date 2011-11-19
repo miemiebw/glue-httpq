@@ -64,8 +64,10 @@ public class HttpHandler extends NettyHandler {
 					Message message = queue.poll(10, TimeUnit.SECONDS);
 					pushMessages.add(message);
 					while(queue.size()>0){
-						message = queue.poll(10, TimeUnit.SECONDS);
-						pushMessages.add(message);
+						message = queue.poll();
+						if(message != null){
+							pushMessages.add(message);
+						}
 					}
 					
 					String json = JSON.toJSONString(pushMessages);
