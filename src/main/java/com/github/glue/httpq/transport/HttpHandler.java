@@ -100,7 +100,7 @@ public class HttpHandler extends NettyHandler {
 					this.route(name, message);
 					channel.write(Reply.as().with("{status:'success', op:'postMessage' ,result: 'push done.'}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}
-			}else if(uri.startsWith("/console")){
+			}else{
 				InputStream input = this.getClass().getResourceAsStream(uri);
 				channel.write(Reply.as().with(input).type(Reply.CONTENTTYPE_HTML).toResponse());
 			}
