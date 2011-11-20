@@ -104,7 +104,12 @@ var HttpQ = function(host, port,poolInteval){
 								var message = resultData.result[j];
 								for(var i=0; i<_subs.length; i++){
 									if(_subs[i].name == message.headers['header.routingKey']){
-										_subs[i].delivery(message.body);
+										if(!_subs[i].handleAs || _subs[i].handleAs == 'json'){
+											_subs[i].delivery(eval('('+message.body+')'));
+										}else if(_subs[i].handleAs == 'text'){
+											_subs[i].delivery(message.body);
+										}
+										
 									}
 									
 								}
@@ -118,11 +123,14 @@ var HttpQ = function(host, port,poolInteval){
 				}
 			},
 			error : function(xhr) {
-				failureCallback(xhr);
+				for(var i=0; i<_subs.length; i++){
+					if(_subs[i].name == message.headers['header.routingKey']){
+						_subs[i].error(xhr);
+					}
+				}
 				listenWait(5000);
 			},
-			data : {
-			}
+			data : {}
 		});
 	};
 	
