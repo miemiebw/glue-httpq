@@ -74,7 +74,7 @@ public class HttpHandler extends NettyHandler {
 					}
 					
 					List<Message> pushMessages = Lists.newArrayList();
-					Message message = queue.poll(10, TimeUnit.SECONDS);
+					Message message = queue.poll(60, TimeUnit.SECONDS);
 					if(message != null){
 						pushMessages.add(message);
 					}
