@@ -109,7 +109,6 @@ var HttpQ = function(host, port,poolInteval){
 								var message = resultData.result[j];
 								for(var i=0; i<_subs.length; i++){
 									if(_subs[i].name == message.headers['header.routingKey']){
-										console.dir(_subs[i].handleAs);
 										if( _subs[i].handleAs == 'json'){
 											_subs[i].onMessage(eval('('+message.body+')'));
 										}else if(_subs[i].handleAs == 'text'){
