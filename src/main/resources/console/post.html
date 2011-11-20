@@ -3,6 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <title>Test Post</title>
+<script type="text/javascript" src="http://127.0.0.1:6360/scripts/glue-httpq.js"></script>
+<script type="text/javascript">
+window.onload = function() {
+	
+	var httpq = new HttpQ("127.0.0.1", 6360);
+	httpq.deliver({
+		name: 'user.add',
+		type: 'direct',
+		body: '哈哈哈哈哈哈哈哈哈'
+	});
+	
+}
+</script>
+
 </head>
 <body>
 <form method="post" action="http://127.0.0.1:6360/q">
@@ -10,5 +24,6 @@
 	<textarea name="body" rows="5" cols="50"></textarea> <br />
 	<input type="submit"  value="ok"/>
 </form>
+
 </body>
 </html>

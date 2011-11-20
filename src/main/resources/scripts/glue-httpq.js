@@ -71,6 +71,7 @@ var HttpQ = function(host, port,poolInteval){
 	var _poolInteval = poolInteval;
 	var _clientId  = '';
 	var _subs = [];
+	var _started = false;
 	
 
 	
@@ -78,9 +79,13 @@ var HttpQ = function(host, port,poolInteval){
 		options['name'] = options['name'];
 		options['type'] = options['type'] || 'direct';
 		options['handleAs'] = options['handleAs'] || 'json';
-		options['delivery'] = options['delivery'] || function(text,xhr){};
-		options['error'] = options['error'] || function(xhr){};
+		options['onMessage'] = options['onMessage'] || function(text,xhr){};
+		options['onError'] = options['onError'] || function(xhr){};
 		_subs.push(options);
+		if(!_started){
+			listenWait();
+			_started = true;
+		}
 	}
 	var sendRequest = function(){
 		var params = 'clientId='+_clientId;
@@ -106,14 +111,11 @@ var HttpQ = function(host, port,poolInteval){
 									if(_subs[i].name == message.headers['header.routingKey']){
 										console.dir(_subs[i].handleAs);
 										if( _subs[i].handleAs == 'json'){
-
-											_subs[i].delivery(eval('('+message.body+')'));
+											_subs[i].onMessage(eval('('+message.body+')'));
 										}else if(_subs[i].handleAs == 'text'){
-											_subs[i].delivery(message.body);
+											_subs[i].onMessage(message.body);
 										}
-										
 									}
-									
 								}
 							}
 						}
@@ -126,7 +128,7 @@ var HttpQ = function(host, port,poolInteval){
 			},
 			error : function(xhr) {
 				for(var i=0; i<_subs.length; i++){
-					_subs[i].error(xhr);
+					_subs[i].onError(xhr);
 				}
 				listenWait(5000);
 			},
@@ -142,7 +144,24 @@ var HttpQ = function(host, port,poolInteval){
 		}
 	}
 	
+	this.deliver = function(options){
+		options['name'] = options['name'];
+		options['type'] = options['type'] || 'direct';
+		options['body'] = options['body'];
+		
+		crossdomain.ajax({
+			url : 'http://'+ _host +':' + _port + '/q',
+			type : 'post',
+			success : function(text, xhr) {
+				console.dir(text);
+			},
+			error : function(xhr) {
+				console.dir(xhr.responseText);
+			},
+			data : 'name='+options['name']+'&type='+options['type']+'&body='+options['body']
+		});
+	}
 	
-	return listenWait();
+	
 	
 }

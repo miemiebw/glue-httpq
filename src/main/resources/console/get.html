@@ -11,11 +11,12 @@ window.onload = function() {
 	httpq.listen({
 		name: 'user.add',
 		type: 'direct',
-		delivery: function(data){
+		handleAs: 'text',
+		onMessage: function(data){
 			var con = document.getElementById("content");
 			con.innerHTML = data;
 		},
-		error: function(xhr){
+		onError: function(xhr){
 			
 		}
 	});
