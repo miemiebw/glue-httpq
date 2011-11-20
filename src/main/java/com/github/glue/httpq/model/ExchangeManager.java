@@ -35,6 +35,15 @@ public class ExchangeManager {
 		return queues.get(name);
 	}
 	
+	public boolean checkBind(String bindingKey, String queueName){
+		LinkedBlockingQueue<Message> queue = getQueue(queueName);
+		List<LinkedBlockingQueue<Message>> queueList = exchages.get(bindingKey);
+		if(queueList == null){
+			return false;
+		}
+		return queueList.contains(queue);
+	}
+	
 	public synchronized void bindQueue(String bindingKey, String queueName){
 		List<LinkedBlockingQueue<Message>> queueList = exchages.get(bindingKey);
 		if(queueList == null){
@@ -45,6 +54,12 @@ public class ExchangeManager {
 		if(queue != null){
 			queueList.add(queue);
 		}
+	}
+	
+	public synchronized void unbindQueue(String bindingKey, String queueName){
+		LinkedBlockingQueue<Message> queue = getQueue(queueName);
+		List<LinkedBlockingQueue<Message>> queueList = exchages.get(bindingKey);
+		queueList.remove(queue);
 	}
 	
 	public void route(String routingKey, Message message) {

@@ -3,18 +3,34 @@
 <head>
 <meta charset="UTF-8" />
 <title>Test Get</title>
-<script type="text/javascript" src="http://127.0.0.1:6360/scripts/httppubsub.js"></script>
+<script type="text/javascript" src="http://127.0.0.1:6360/scripts/glue-httpq.js"></script>
 <script type="text/javascript">
 window.onload = function() {
-	var sub1 = new HttpSub(
-			'http://127.0.0.1:6360/q?name=user.add&clientId=r902f5ac-bbfb-4892-af75-0ef3cd9524f3', function(text, xhr) {
+	
+	var httpq = new HttpQ("127.0.0.1", 6360);
+	httpq.listen({
+		name: 'user.add',
+		type: 'direct',
+		handleAs: 'json',
+		delivery: function(data){
+			console.dir('user.add: ' + data);
+		},
+		error: function(xhr){
 			
-				console.log(text);
-			}, function(xhr) {
-				console.log("error111.");
-			});
-
-	sub1.listen();
+		}
+	});
+	
+	httpq.listen({
+		name: 'user.update',
+		type: 'direct',
+		handleAs: 'json',
+		delivery: function(data){
+			console.dir('user.update: ' + data);
+		},
+		error: function(xhr){
+			
+		}
+	});
 	
 }
 </script>

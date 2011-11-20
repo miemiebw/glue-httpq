@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.glue.httpq.model.ExchangeManager;
 import com.github.glue.httpq.model.Message;
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
@@ -56,22 +57,27 @@ public class HttpHandler extends NettyHandler {
 				QueryStringDecoder decoder = new QueryStringDecoder(uri,Charsets.UTF_8);
 				List<String> clientIds = decoder.getParameters().get("clientId");
 				List<String> names = decoder.getParameters().get("name");
-				if(clientIds == null || clientIds.isEmpty()){
+				if(clientIds == null || clientIds.isEmpty() || Strings.isNullOrEmpty(clientIds.get(0))){
 					String clientId = UUID.randomUUID().toString();
-					channel.write(Reply.as().with("{status:'success',op:'getClentId' ,result: '"+clientId+"'}").type(Reply.CONTENTTYPE_JSON).toResponse());
+					channel.write(Reply.as().with("{status:'success',op:'getClientId' ,result: '"+clientId+"'}").type(Reply.CONTENTTYPE_JSON).toResponse());
 				}else if(names != null && !names.isEmpty()){
 					String clientId = clientIds.get(0);
-					String name = names.get(0);
-					String queueName = clientId + "#" +name;
-					LinkedBlockingQueue<Message> queue = exchangeManager.getQueue(queueName);
+					LinkedBlockingQueue<Message> queue = exchangeManager.getQueue(clientId);
 					if(queue == null){
-						exchangeManager.createQueue(queueName);
-						queue = exchangeManager.getQueue(queueName);
-						exchangeManager.bindQueue(name, queueName);
+						exchangeManager.createQueue(clientId);
+						queue = exchangeManager.getQueue(clientId);
 					}
+					for (String name : names) {
+						if(!exchangeManager.checkBind(name, clientId)){
+							exchangeManager.bindQueue(name, clientId);
+						}
+					}
+					
 					List<Message> pushMessages = Lists.newArrayList();
 					Message message = queue.poll(10, TimeUnit.SECONDS);
-					pushMessages.add(message);
+					if(message != null){
+						pushMessages.add(message);
+					}
 					while(queue.size()>0){
 						message = queue.poll();
 						if(message != null){
