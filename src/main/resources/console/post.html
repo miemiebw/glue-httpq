@@ -5,25 +5,25 @@
 <title>Test Post</title>
 <script type="text/javascript" src="http://127.0.0.1:6360/scripts/glue-httpq.js"></script>
 <script type="text/javascript">
+var httpq = null;
 window.onload = function() {
-	
-	var httpq = new HttpQ("127.0.0.1", 6360);
+	httpq = new HttpQ("127.0.0.1", 6360);
+}
+
+function btn_click(){
 	httpq.deliver({
-		name: 'user.add',
-		type: 'direct',
-		body: '哈哈哈哈哈哈哈哈哈'
+		name: document.getElementById("name").value,
+		body: document.getElementById("body").value
 	});
-	
 }
 </script>
 
 </head>
 <body>
-<form method="post" action="http://127.0.0.1:6360/q">
-	<input type="text" name="name"/> <br />
-	<textarea name="body" rows="5" cols="50"></textarea> <br />
-	<input type="submit"  value="ok"/>
-</form>
+	<input id="name" type="text" name="name"/> <br />
+	<textarea id="body" name="body" rows="5" cols="50"></textarea> <br />
+	<input type="button"  value="ok" onclick="btn_click();"/>
+
 
 </body>
 </html>
