@@ -1,0 +1,66 @@
+glue-httpq是一个基于http协议的消息服务器。使用长链接和轮询技术可以在页面使用javascript直接订阅消息服务。
+
+1.订阅
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Test Get</title>
+<script type="text/javascript" src="http://127.0.0.1:6360/scripts/glue-httpq.js"></script>
+<script type="text/javascript">
+window.onload = function() {
+	
+	var httpq = new HttpQ("127.0.0.1", 6360);
+	httpq.listen({
+		name: 'user.add', //队列名称
+		type: 'direct', //topic ,direct
+		handleAs: 'text', //json ,text
+		onMessage: function(data){
+			var con = document.getElementById("content");
+			con.innerHTML = data;
+		},
+		onError: function(xhr){
+			
+		}
+	});
+	
+}
+</script>
+</head>
+<body>
+<div id="content"></div>
+</body>
+</html>
+
+
+2.发布
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Test Post</title>
+<script type="text/javascript" src="http://127.0.0.1:6360/scripts/glue-httpq.js"></script>
+<script type="text/javascript">
+var httpq = null;
+window.onload = function() {
+	httpq = new HttpQ("127.0.0.1", 6360);
+}
+
+function btn_click(){
+	httpq.deliver({
+		name: document.getElementById("name").value,
+		body: document.getElementById("body").value
+	});
+}
+</script>
+
+</head>
+<body>
+	<input id="name" type="text" name="name"/> <br />
+	<textarea id="body" name="body" rows="5" cols="50"></textarea> <br />
+	<input type="button"  value="ok" onclick="btn_click();"/>
+</body>
+</html>
+
+
+
