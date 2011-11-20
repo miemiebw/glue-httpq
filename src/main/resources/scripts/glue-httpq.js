@@ -75,12 +75,11 @@ var HttpQ = function(host, port,poolInteval){
 
 	
 	this.listen = function(options){
-		var name = options['name'];
-		var type = options['type'];
-		var handleAs = options['handleAs'];
-		var delivery = options['delivery'];
-		var error = options['error'];
-		
+		options['name'] = options['name'];
+		options['type'] = options['type'] || 'direct';
+		options['handleAs'] = options['handleAs'] || 'json';
+		options['delivery'] = options['delivery'] || function(text,xhr){};
+		options['error'] = options['error'] || function(xhr){};
 		_subs.push(options);
 	}
 	var sendRequest = function(){
@@ -96,6 +95,7 @@ var HttpQ = function(host, port,poolInteval){
 			success : function(text, xhr) {
 				if(text != undefined && text != ""){
 					var resultData = eval('('+text+')');
+					
 					if(resultData.op == 'getClientId'){
 						_clientId = resultData.result;
 					}else if(resultData.op == 'getMessage'){
@@ -104,7 +104,9 @@ var HttpQ = function(host, port,poolInteval){
 								var message = resultData.result[j];
 								for(var i=0; i<_subs.length; i++){
 									if(_subs[i].name == message.headers['header.routingKey']){
-										if(!_subs[i].handleAs || _subs[i].handleAs == 'json'){
+										console.dir(_subs[i].handleAs);
+										if( _subs[i].handleAs == 'json'){
+
 											_subs[i].delivery(eval('('+message.body+')'));
 										}else if(_subs[i].handleAs == 'text'){
 											_subs[i].delivery(message.body);
