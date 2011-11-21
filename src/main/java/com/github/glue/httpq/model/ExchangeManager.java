@@ -28,7 +28,7 @@ public class ExchangeManager {
 	Map<String, List<LinkedBlockingQueue<Message>>> exchages = Maps.newConcurrentMap();
 	
 	public void createQueue(String name){
-		queues.put(name, new LinkedBlockingQueue<Message>());
+		queues.put(name, new LinkedBlockingQueue<Message>(5000));
 	}
 	
 	public LinkedBlockingQueue<Message> getQueue(String name){
@@ -67,7 +67,11 @@ public class ExchangeManager {
 		if(queueList != null){
 			for (LinkedBlockingQueue<Message> queue : queueList) {
 				try {
-					queue.put(message);
+					if(queue.size() < 5000){
+						queue.put(message);
+					}else{
+						log.warn("discard message: {}",message);
+					}
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}

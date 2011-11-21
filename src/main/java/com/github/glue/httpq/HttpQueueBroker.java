@@ -34,7 +34,7 @@ public class HttpQueueBroker {
 	
 	public void start(){
 		executor = Executors.newCachedThreadPool();
-		channelFactory = new NioServerSocketChannelFactory(executor,executor);
+		channelFactory = new NioServerSocketChannelFactory(executor,executor,100);
 		exchangeManager = new ExchangeManager();
 		
 		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory(){

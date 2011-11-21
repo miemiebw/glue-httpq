@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Pressure Post</title>
+<script type="text/javascript" src="http://127.0.0.1:6360/scripts/glue-httpq.js"></script>
+<script type="text/javascript">
+var httpq = null;
+window.onload = function() {
+	httpq = new HttpQ("127.0.0.1", 6360);
+	
+	setInterval(btn_click,1);
+}
+var i = 0;
+function btn_click(){
+	httpq.deliver({
+		name: 'user.add',
+		body: '{number:"'+i+'"}'
+	});
+	i = i + 1;
+}
+</script>
+
+</head>
+<body>
+</body>
+</html>

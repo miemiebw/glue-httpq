@@ -78,15 +78,16 @@ public class HttpHandler extends NettyHandler {
 					if(message != null){
 						pushMessages.add(message);
 					}
-					while(queue.size()>0){
-						message = queue.poll();
-						if(message != null){
-							pushMessages.add(message);
-						}
-					}
+					queue.drainTo(pushMessages);
 					
-					String json = JSON.toJSONString(pushMessages);
-					channel.write(Reply.as().with("{status:'success', op:'getMessage', clientId:'"+clientId+"' ,result:"+ json +"}").type(Reply.CONTENTTYPE_JSON).toResponse());
+					
+					StringBuilder builder = new StringBuilder("{status:'success', op:'getMessage', clientId:'");
+					builder.append(clientId);
+					builder.append("' ,result:");
+					builder.append(JSON.toJSON(pushMessages));
+					builder.append("}");
+					
+					channel.write(Reply.as().with(builder.toString()).type(Reply.CONTENTTYPE_JSON).toResponse());
 				}
 				
 				
@@ -131,7 +132,8 @@ public class HttpHandler extends NettyHandler {
 	 */
 	@Override
 	protected void handleException(Throwable e, Channel channel) {
-		channel.write(Reply.as().with("{status:'fail' ,result: '"+Throwables.getStackTraceAsString(e)+"'}").type(Reply.CONTENTTYPE_HTML).toResponse());
+		log.error("exception", e);
+		//channel.write(Reply.as().with("{status:'fail' ,result: '"+Throwables.getStackTraceAsString(e)+"'}").type(Reply.CONTENTTYPE_HTML).toResponse());
 	}
 	
 	
