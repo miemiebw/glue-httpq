@@ -65,7 +65,7 @@ public class HttpQueueBroker {
 	}
 
 	public static void main(String[] args){
-		HttpQueueBroker broker = new HttpQueueBroker("", 6360);
+		HttpQueueBroker broker = new HttpQueueBroker("0.0.0.0", 6360);
 		broker.start();
 	}
 }

@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <title>Test Get</title>
-<script type="text/javascript" src="http://10.187.28.131:6360/scripts/glue-httpq.js"></script>
+<script type="text/javascript" src="http://127.0.0.1:6360/scripts/glue-httpq.js"></script>
 <script type="text/javascript">
 window.onload = function() {
 	
-	var httpq = new HttpQ("10.187.28.131", 6360);
+	var httpq = new HttpQ("127.0.0.1", 6360);
 	httpq.listen({
 		name: 'user.add',
 		type: 'direct',
