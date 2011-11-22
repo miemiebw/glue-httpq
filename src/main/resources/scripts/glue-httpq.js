@@ -132,7 +132,7 @@ var HttpQ = function(host, port,poolInteval){
 				}
 				listenWait(5000);
 			},
-			data : {}
+			data : null
 		});
 	};
 	
