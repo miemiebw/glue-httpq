@@ -87,7 +87,6 @@ public class HttpHandler extends NettyHandler {
 				channel.write(Reply.as().with(input).type(Reply.CONTENTTYPE_HTML).toResponse());
 			}
 			
-			
 			channel.disconnect();
 		    channel.close();
 		}catch (Exception e) {
@@ -101,7 +100,6 @@ public class HttpHandler extends NettyHandler {
 	@Override
 	protected void handleException(Throwable e) {
 		log.error("exception", e);
-		//channel.write(Reply.as().with("{status:'fail' ,result: '"+Throwables.getStackTraceAsString(e)+"'}").type(Reply.CONTENTTYPE_HTML).toResponse());
 	}
 	
 	

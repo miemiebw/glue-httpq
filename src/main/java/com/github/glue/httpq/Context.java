@@ -12,5 +12,5 @@ import com.github.glue.httpq.transport.Session;
 public interface Context {
 	
 	public Session getSession(String sid);
-	
+	public void removeSession(Session ssn);
 }

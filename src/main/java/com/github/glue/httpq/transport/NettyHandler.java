@@ -40,9 +40,9 @@ public abstract class NettyHandler implements ChannelUpstreamHandler{
 			if(state.getState().equals(ChannelState.CONNECTED) && state.getValue() == null){
 				
 			}else if(state.getState().equals(ChannelState.OPEN) && Boolean.TRUE.equals(state.getValue())){
-				log.debug("New session from "+remoteAddress.getAddress().getHostAddress()+":"+remoteAddress.getPort());
+				//log.debug("New session from "+remoteAddress.getAddress().getHostAddress()+":"+remoteAddress.getPort());
 			}else if(state.getState().equals(ChannelState.OPEN) && Boolean.FALSE.equals(state.getValue())){
-				log.debug("Session close "+remoteAddress.getAddress().getHostAddress()+":"+remoteAddress.getPort());
+				//log.debug("Session close "+remoteAddress.getAddress().getHostAddress()+":"+remoteAddress.getPort());
 			}
 		}else if(event instanceof IdleStateEvent){
 			log.debug("Idle timeout on session %s", channel);

@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -31,6 +33,8 @@ public class HttpQueueBroker implements Context{
 	String host;
 	int port;
 	
+	ScheduledExecutorService scheduExec = Executors.newScheduledThreadPool(1);  
+	
 	Map<String, Session> sessions = Maps.newHashMap();
 	
 	public HttpQueueBroker(String host, int port){
@@ -56,6 +60,7 @@ public class HttpQueueBroker implements Context{
 		InetSocketAddress address = new InetSocketAddress(host,port);
 		channel = makeAcceptor(channelFactory, pipelineFactory, address);
 		log.info("start...");
+		scheduExec.scheduleWithFixedDelay(new CheckTask(), 10, 1, TimeUnit.SECONDS);
 	}
 	
 	private Channel makeAcceptor(ChannelFactory channelFactory, ChannelPipelineFactory pipelineFactory,
@@ -78,9 +83,27 @@ public class HttpQueueBroker implements Context{
 	public Session getSession(String sid) {
 		Session ssn = sessions.get(sid);
 		if(ssn == null){
-			ssn = new Session(sid, exchanger, 10);
+			ssn = new Session(sid, exchanger, 10000);
 			sessions.put(sid, ssn);
+			log.info("Session '{}' created.",ssn.getSid());
 		}
 		return ssn;
+	}
+	
+	public void removeSession(Session ssn){
+		sessions.remove(ssn.getSid());
+		log.info("Session '{}' removed.",ssn.getSid());
+	}
+	
+	private class CheckTask implements Runnable{
+
+		public void run() {
+			for (Session ssn : sessions.values()) {
+				if(ssn.isTimeout()){
+					removeSession(ssn);
+				}
+			}
+		}
+		
 	}
 }
