@@ -92,6 +92,7 @@ public class HttpQueueBroker implements Context{
 	
 	public void removeSession(Session ssn){
 		sessions.remove(ssn.getSid());
+		exchanger.distroyQueue(ssn.getSid());
 		log.info("Session '{}' removed.",ssn.getSid());
 	}
 	

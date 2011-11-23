@@ -44,7 +44,7 @@ public class Exchanger {
 		return queueList.contains(queue);
 	}
 	
-	public synchronized void bindQueue(String bindingKey, String queueName){
+	public void bindQueue(String bindingKey, String queueName){
 		List<LinkedBlockingQueue<Message>> queueList = exchages.get(bindingKey);
 		if(queueList == null){
 			queueList = Lists.newArrayList();
@@ -56,10 +56,16 @@ public class Exchanger {
 		}
 	}
 	
-	public synchronized void unbindQueue(String bindingKey, String queueName){
+	public void distroyQueue(String queueName){
 		LinkedBlockingQueue<Message> queue = getQueue(queueName);
-		List<LinkedBlockingQueue<Message>> queueList = exchages.get(bindingKey);
-		queueList.remove(queue);
+		
+		for(List<LinkedBlockingQueue<Message>> list : exchages.values()){
+			if(list.contains(queue)){
+				list.remove(queue);
+			}
+		}
+		queues.remove(queueName);
+		
 	}
 	
 	public void route(String routingKey, Message message) {
