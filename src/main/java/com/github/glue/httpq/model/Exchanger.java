@@ -17,7 +17,7 @@ import com.google.common.collect.Maps;
  * @author eric
  *
  */
-public class ExchangeManager {
+public class Exchanger {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	final static String DIRECT = "amq.direct";
 	final static String TOPIC = "amq.topic";

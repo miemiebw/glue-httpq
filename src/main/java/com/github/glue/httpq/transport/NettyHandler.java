@@ -24,18 +24,18 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class NettyHandler implements ChannelUpstreamHandler{
 	private Logger log = LoggerFactory.getLogger(getClass());
-	
+	Channel channel;
 	public void handleUpstream(ChannelHandlerContext context, ChannelEvent event)
 			throws Exception {
+		this.channel = event.getChannel();
 		if(event instanceof MessageEvent){
-			handle((HttpRequest)((MessageEvent) event).getMessage(),event.getChannel());
+			handle((HttpRequest)((MessageEvent) event).getMessage());
 		}else if(event instanceof ExceptionEvent){
 			log.error("Exception caught ",event);
-			handleException(((ExceptionEvent)event).getCause(), event.getChannel());
+			handleException(((ExceptionEvent)event).getCause());
 			event.getChannel().close();
 		}else if(event instanceof ChannelStateEvent){
 			ChannelStateEvent state = (ChannelStateEvent)event;
-			Channel channel =  state.getChannel();
 			InetSocketAddress remoteAddress = (InetSocketAddress) channel.getRemoteAddress();
 			if(state.getState().equals(ChannelState.CONNECTED) && state.getValue() == null){
 				
@@ -45,13 +45,13 @@ public abstract class NettyHandler implements ChannelUpstreamHandler{
 				log.debug("Session close "+remoteAddress.getAddress().getHostAddress()+":"+remoteAddress.getPort());
 			}
 		}else if(event instanceof IdleStateEvent){
-			log.debug("Idle timeout on session %s", event.getChannel());
-			event.getChannel().close();
+			log.debug("Idle timeout on session %s", channel);
+			channel.close();
 		}else{
 			context.sendUpstream(event);
 		}
 	}
 
-	protected abstract void handle(HttpRequest request, Channel channel);
-	protected abstract void handleException(Throwable e, Channel channel);
+	protected abstract void handle(HttpRequest request);
+	protected abstract void handleException(Throwable e);
 }

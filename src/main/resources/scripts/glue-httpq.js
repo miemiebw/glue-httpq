@@ -105,7 +105,6 @@ var HttpQ = function(host, port,poolInteval){
 						_clientId = resultData.result;
 					}else if(resultData.op == 'getMessage'){
 						if(resultData.result.length != 0){
-							console.log(resultData.result.length);
 							for(var j=0; j<resultData.result.length; j++){
 								var message = resultData.result[j];
 								for(var i=0; i<_subs.length; i++){

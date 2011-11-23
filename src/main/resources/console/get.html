@@ -7,7 +7,7 @@
 <script type="text/javascript">
 window.onload = function() {
 	
-	var httpq = new HttpQ("127.0.0.1", 6360);
+	var httpq = new HttpQ("127.0.0.1", 6360,1000);
 	httpq.listen({
 		name: 'user.add',
 		type: 'direct',

@@ -1,6 +1,7 @@
 package com.github.glue.httpq;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,17 +17,22 @@ import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.glue.httpq.model.ExchangeManager;
+import com.github.glue.httpq.model.Exchanger;
 import com.github.glue.httpq.transport.HttpHandler;
+import com.github.glue.httpq.transport.Session;
+import com.google.common.collect.Maps;
 
-public class HttpQueueBroker {
+public class HttpQueueBroker implements Context{
 	private Logger log = LoggerFactory.getLogger(getClass());
 	ExecutorService executor;
 	ChannelFactory channelFactory;
 	Channel channel;
-	ExchangeManager exchangeManager;
+	Exchanger exchanger;
 	String host;
 	int port;
+	
+	Map<String, Session> sessions = Maps.newHashMap();
+	
 	public HttpQueueBroker(String host, int port){
 		this.host = host;
 		this.port = port;
@@ -35,7 +41,7 @@ public class HttpQueueBroker {
 	public void start(){
 		executor = Executors.newCachedThreadPool();
 		channelFactory = new NioServerSocketChannelFactory(executor,executor,100);
-		exchangeManager = new ExchangeManager();
+		exchanger = new Exchanger();
 		
 		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory(){
 
@@ -43,7 +49,7 @@ public class HttpQueueBroker {
 				ChannelPipeline pipeline = Channels.pipeline();
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 		        pipeline.addLast("encoder", new HttpResponseEncoder());
-		        pipeline.addLast("http", new HttpHandler(exchangeManager));
+		        pipeline.addLast("http", new HttpHandler(HttpQueueBroker.this));
 				return pipeline;
 			}
 		};
@@ -67,5 +73,14 @@ public class HttpQueueBroker {
 	public static void main(String[] args){
 		HttpQueueBroker broker = new HttpQueueBroker("0.0.0.0", 6360);
 		broker.start();
+	}
+
+	public Session getSession(String sid) {
+		Session ssn = sessions.get(sid);
+		if(ssn == null){
+			ssn = new Session(sid, exchanger, 10);
+			sessions.put(sid, ssn);
+		}
+		return ssn;
 	}
 }
