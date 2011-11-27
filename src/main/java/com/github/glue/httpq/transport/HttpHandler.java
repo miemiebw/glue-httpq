@@ -47,10 +47,9 @@ public class HttpHandler extends NettyHandler {
 		String uri = request.getUri();
 		log.debug(uri);
 		try{
-		
-			if(uri.startsWith("/q?") && request.getMethod() == HttpMethod.GET){
+			QueryStringDecoder decoder = new QueryStringDecoder(uri,Charsets.UTF_8);
+			if("/q".equals(decoder.getPath()) && request.getMethod() == HttpMethod.GET){
 				// /q?name=user.add&clientId=123-43-12345
-				QueryStringDecoder decoder = new QueryStringDecoder(uri,Charsets.UTF_8);
 				List<String> clientIds = decoder.getParameters().get("clientId");
 				List<String> names = decoder.getParameters().get("name");
 				if(clientIds == null || clientIds.isEmpty() || Strings.isNullOrEmpty(clientIds.get(0))){
@@ -60,13 +59,12 @@ public class HttpHandler extends NettyHandler {
 				}
 				
 				
-			}else if(uri.equalsIgnoreCase("/q") && request.getMethod() == HttpMethod.POST){
+			}else if("/q".equals(decoder.getPath()) && request.getMethod() == HttpMethod.POST){
 				// content: name=user.add
 				//		    body={id=123,name=lily}
-				
 				byte[] bytes = readContent(request);
 				String parameterString = new String(bytes);
-				QueryStringDecoder decoder = new QueryStringDecoder(uri + "?" + parameterString, Charsets.UTF_8);
+				decoder = new QueryStringDecoder(uri + "?" + parameterString, Charsets.UTF_8);
 				List<String> names = decoder.getParameters().get("name");
 				List<String> bodys = decoder.getParameters().get("body");
 				if(names != null && !names.isEmpty() &&
